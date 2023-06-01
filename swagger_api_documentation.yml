@@ -1,0 +1,436 @@
+openapi: 3.0.3
+info:
+  title: Animals RESTful Api project
+  description: |-
+    RESTful Api сервис для хранения информации о животных в зоопарке. Сервис написан на языке Python
+    
+    <b>В системе присутствуют следующие компоненты:</b>
+    - Account
+    - Animal
+    - Animal Type
+    
+    <b>В контроллерах доступен следующий функционал:</b>
+    
+    Authentication:
+    - Регистрация аккаунта
+    
+    Account:
+    - Просмотр информации об аккаунте
+    - Поиск/изменение/удаление аккаунта
+    
+    Animal:
+    - Просмотр информации о животном
+    - Поиск/создание/изменение/удаление животного
+
+    Animal Type:
+    - Просмотр информации о типах животных
+    
+    <b>Сервис имеет базу данных SQLite</b>
+    
+    <b>Сервис упакован в Docker контейнер</b>
+    
+    URL, на котором будет открываться сервис при развёртывании контейнера: http://localhost:3000
+
+  version: 1.0.0
+
+servers:
+  - url: https://localhost:3000
+tags:
+  - name: registration
+    description: Register new account
+  - name: accounts
+    description: Operations about account
+  - name: animals
+    description: Operations about animal
+  - name: animals types
+    description: Get animal types
+paths:
+  /registration:
+    post:
+      tags:
+        - registration
+      summary: Create new account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Registration'
+        required: true
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Registrated'
+
+        '400':
+          description: Wrong parameters
+        '403':
+          description: This account already exists
+        '409':
+          description: This email already exists
+
+  /accounts/{accountId}:
+    get:
+      tags:
+        - accounts
+      summary: Get account info by id
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Registrated'
+        '400':
+          description: AccountId is incorrest
+        '401':
+          description: Wrong data
+        '404':
+          description: No such account
+
+    delete:
+      tags:
+        - accounts
+      summary: Delete an account
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Wrong accountId or there are some animals who are chipped by this account
+        '403':
+          description: No such account
+
+    put:
+      tags:
+        - accounts
+      summary: Update account info
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Registration'
+        required: true
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Registrated'
+        '400':
+          description: Wrong parameters
+        '401':
+          description: Wrong password
+        '403':
+          description: No such account
+        '409':
+          description: This email already exists
+
+  /accounts/search:
+    get:
+      tags:
+        - accounts
+      summary: Get account info by parameters
+      parameters:
+        - name: firstName
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: lastName
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Registrated'
+        '401':
+          description: No such account
+
+  /animals:
+    post:
+      tags:
+        - animals
+      summary: Add new animal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Add'
+        required: true
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Added'
+
+        '400':
+          description: Wrong parameters
+        '401':
+          description: Wrong password
+        '404':
+          description: No such email
+        '409':
+          description: This animal already exists
+
+  /animals/{animalId}:
+    get:
+      tags:
+        - animals
+      summary: Get animal info by id
+      parameters:
+        - name: animalId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Password'
+        required: true
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Added'
+        '400':
+          description: Wrong parameters
+        '401':
+          description: Wrong password
+        '404':
+          description: No such email / The animal doesn't exist
+
+    delete:
+      tags:
+        - animals
+      summary: Get animal info by id
+      parameters:
+        - name: animalId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Password'
+        required: true
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Wrong parameters
+        '401':
+          description: Wrong password
+        '403':
+          description: The animal doesn't exist
+        '404':
+          description: No such email
+
+    put:
+      tags:
+        - animals
+      summary: Get animal info by id
+      parameters:
+        - name: animalId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Add'
+        required: true
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Added'
+        '400':
+          description: Wrong parameters
+        '401':
+          description: Wrong password
+        '403':
+          description: The animal doesn't exist
+        '404':
+          description: No such email / The animal doesn't exist
+
+  /animals/search:
+    get:
+      tags:
+        - animals
+      summary: Get animal info by parameters
+      parameters:
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Password'
+        required: true
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Added'
+        '401':
+          description: The animal doesn't exist
+
+  /types:
+    get:
+      tags:
+        - animals types
+      summary: Get all types of animals
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Types'
+
+
+components:
+  schemas:
+    Registration:
+      type: object
+      properties:
+        firstName:
+          type: string
+          example: string
+        lastName:
+          type: string
+          example: string
+        email:
+          type: string
+          example: string@str
+        password:
+          type: string
+          example: 12345
+    Registrated:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        firstName:
+          type: string
+          example: string
+        lastName:
+          type: string
+          example: string
+        email:
+          type: string
+          example: string@str
+    Add:
+      type: object
+      properties:
+        email:
+          type: string
+          example: string@str
+        password:
+          type: string
+          example: 12345
+        name:
+          type: string
+          example: string
+        weight:
+          type: integer
+          example: 10
+        gender:
+          type: integer
+          example: 1
+        animal_type:
+          type: string
+          example: 12345
+    Added:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: string
+        weight:
+          type: integer
+          example: 10
+        gender:
+          type: integer
+          example: 1
+        animal_type:
+          type: string
+          example: 12345
+        chipperId:
+          type: string
+          example: 1
+    Password:
+      type: object
+      properties:
+        email:
+          type: string
+          example: string@str
+        password:
+          type: string
+          example: 12345
+    Types:
+      type: object
+      properties:
+        typeId:
+          type: string
+          example: 0
+        info:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            animal_type:
+              type: string
+              example: string
+
+
+
+
